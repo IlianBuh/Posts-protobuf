@@ -8,8 +8,8 @@ service Post {
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Delete(DeleteRequest) returns (DeleteResponse);
     rpc Update(UpdateRequest) returns (UpdateResponse);
-    rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
-    rpc DownloadFile(DownloadFileRequest) returns (DownloadFileResponse);
+    rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse);
+    rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse);
 }
 
 message CreateRequest {
@@ -38,11 +38,15 @@ message UpdateResponse{}
 message UploadFileRequest{
     int64 postId = 1;
     string fileName = 2;
+    bytes chunk = 3;
 }
 message UploadFileResponse{}
 
 message DownloadFileRequest {
     int64 postId = 1;
     string fileName = 2;
+
 }
-message DownloadFileResponse{} 
+message DownloadFileResponse{
+    bytes chunks = 1;
+} 

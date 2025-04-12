@@ -329,6 +329,7 @@ type UploadFileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PostId        int64                  `protobuf:"varint,1,opt,name=postId,proto3" json:"postId,omitempty"`
 	FileName      string                 `protobuf:"bytes,2,opt,name=fileName,proto3" json:"fileName,omitempty"`
+	Chunk         []byte                 `protobuf:"bytes,3,opt,name=chunk,proto3" json:"chunk,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -375,6 +376,13 @@ func (x *UploadFileRequest) GetFileName() string {
 		return x.FileName
 	}
 	return ""
+}
+
+func (x *UploadFileRequest) GetChunk() []byte {
+	if x != nil {
+		return x.Chunk
+	}
+	return nil
 }
 
 type UploadFileResponse struct {
@@ -467,6 +475,7 @@ func (x *DownloadFileRequest) GetFileName() string {
 
 type DownloadFileResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Chunks        []byte                 `protobuf:"bytes,1,opt,name=chunks,proto3" json:"chunks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -501,6 +510,13 @@ func (*DownloadFileResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{9}
 }
 
+func (x *DownloadFileResponse) GetChunks() []byte {
+	if x != nil {
+		return x.Chunks
+	}
+	return nil
+}
+
 var File_post_proto protoreflect.FileDescriptor
 
 const file_post_proto_rawDesc = "" +
@@ -523,22 +539,24 @@ const file_post_proto_rawDesc = "" +
 	"\x06header\x18\x03 \x01(\tR\x06header\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12\x16\n" +
 	"\x06themes\x18\x05 \x03(\tR\x06themes\"\x10\n" +
-	"\x0eUpdateResponse\"G\n" +
+	"\x0eUpdateResponse\"]\n" +
 	"\x11UploadFileRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\x03R\x06postId\x12\x1a\n" +
-	"\bfileName\x18\x02 \x01(\tR\bfileName\"\x14\n" +
+	"\bfileName\x18\x02 \x01(\tR\bfileName\x12\x14\n" +
+	"\x05chunk\x18\x03 \x01(\fR\x05chunk\"\x14\n" +
 	"\x12UploadFileResponse\"I\n" +
 	"\x13DownloadFileRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\x03R\x06postId\x12\x1a\n" +
-	"\bfileName\x18\x02 \x01(\tR\bfileName\"\x16\n" +
-	"\x14DownloadFileResponse2\xb7\x02\n" +
+	"\bfileName\x18\x02 \x01(\tR\bfileName\".\n" +
+	"\x14DownloadFileResponse\x12\x16\n" +
+	"\x06chunks\x18\x01 \x01(\fR\x06chunks2\xbb\x02\n" +
 	"\x04Post\x125\n" +
 	"\x06Create\x12\x14.posts.CreateRequest\x1a\x15.posts.CreateResponse\x125\n" +
 	"\x06Delete\x12\x14.posts.DeleteRequest\x1a\x15.posts.DeleteResponse\x125\n" +
-	"\x06Update\x12\x14.posts.UpdateRequest\x1a\x15.posts.UpdateResponse\x12A\n" +
+	"\x06Update\x12\x14.posts.UpdateRequest\x1a\x15.posts.UpdateResponse\x12C\n" +
 	"\n" +
-	"UploadFile\x12\x18.posts.UploadFileRequest\x1a\x19.posts.UploadFileResponse\x12G\n" +
-	"\fDownloadFile\x12\x1a.posts.DownloadFileRequest\x1a\x1b.posts.DownloadFileResponseB\x1bZ\x19ilianbuh.posts.v1;postsv1b\x06proto3"
+	"UploadFile\x12\x18.posts.UploadFileRequest\x1a\x19.posts.UploadFileResponse(\x01\x12I\n" +
+	"\fDownloadFile\x12\x1a.posts.DownloadFileRequest\x1a\x1b.posts.DownloadFileResponse0\x01B\x1bZ\x19ilianbuh.posts.v1;postsv1b\x06proto3"
 
 var (
 	file_post_proto_rawDescOnce sync.Once

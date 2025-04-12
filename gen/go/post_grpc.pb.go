@@ -33,8 +33,8 @@ type PostClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
-	UploadFile(ctx context.Context, in *UploadFileRequest, opts ...grpc.CallOption) (*UploadFileResponse, error)
-	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (*DownloadFileResponse, error)
+	UploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFileRequest, UploadFileResponse], error)
+	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DownloadFileResponse], error)
 }
 
 type postClient struct {
@@ -75,25 +75,37 @@ func (c *postClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *postClient) UploadFile(ctx context.Context, in *UploadFileRequest, opts ...grpc.CallOption) (*UploadFileResponse, error) {
+func (c *postClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFileRequest, UploadFileResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UploadFileResponse)
-	err := c.cc.Invoke(ctx, Post_UploadFile_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Post_ServiceDesc.Streams[0], Post_UploadFile_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[UploadFileRequest, UploadFileResponse]{ClientStream: stream}
+	return x, nil
 }
 
-func (c *postClient) DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (*DownloadFileResponse, error) {
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Post_UploadFileClient = grpc.ClientStreamingClient[UploadFileRequest, UploadFileResponse]
+
+func (c *postClient) DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DownloadFileResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DownloadFileResponse)
-	err := c.cc.Invoke(ctx, Post_DownloadFile_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Post_ServiceDesc.Streams[1], Post_DownloadFile_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[DownloadFileRequest, DownloadFileResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Post_DownloadFileClient = grpc.ServerStreamingClient[DownloadFileResponse]
 
 // PostServer is the server API for Post service.
 // All implementations must embed UnimplementedPostServer
@@ -102,8 +114,8 @@ type PostServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
-	UploadFile(context.Context, *UploadFileRequest) (*UploadFileResponse, error)
-	DownloadFile(context.Context, *DownloadFileRequest) (*DownloadFileResponse, error)
+	UploadFile(grpc.ClientStreamingServer[UploadFileRequest, UploadFileResponse]) error
+	DownloadFile(*DownloadFileRequest, grpc.ServerStreamingServer[DownloadFileResponse]) error
 	mustEmbedUnimplementedPostServer()
 }
 
@@ -123,11 +135,11 @@ func (UnimplementedPostServer) Delete(context.Context, *DeleteRequest) (*DeleteR
 func (UnimplementedPostServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedPostServer) UploadFile(context.Context, *UploadFileRequest) (*UploadFileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
+func (UnimplementedPostServer) UploadFile(grpc.ClientStreamingServer[UploadFileRequest, UploadFileResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
-func (UnimplementedPostServer) DownloadFile(context.Context, *DownloadFileRequest) (*DownloadFileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DownloadFile not implemented")
+func (UnimplementedPostServer) DownloadFile(*DownloadFileRequest, grpc.ServerStreamingServer[DownloadFileResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method DownloadFile not implemented")
 }
 func (UnimplementedPostServer) mustEmbedUnimplementedPostServer() {}
 func (UnimplementedPostServer) testEmbeddedByValue()              {}
@@ -204,41 +216,23 @@ func _Post_Update_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Post_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UploadFileRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PostServer).UploadFile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Post_UploadFile_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServer).UploadFile(ctx, req.(*UploadFileRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _Post_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PostServer).UploadFile(&grpc.GenericServerStream[UploadFileRequest, UploadFileResponse]{ServerStream: stream})
 }
 
-func _Post_DownloadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DownloadFileRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Post_UploadFileServer = grpc.ClientStreamingServer[UploadFileRequest, UploadFileResponse]
+
+func _Post_DownloadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DownloadFileRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(PostServer).DownloadFile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Post_DownloadFile_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServer).DownloadFile(ctx, req.(*DownloadFileRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(PostServer).DownloadFile(m, &grpc.GenericServerStream[DownloadFileRequest, DownloadFileResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Post_DownloadFileServer = grpc.ServerStreamingServer[DownloadFileResponse]
 
 // Post_ServiceDesc is the grpc.ServiceDesc for Post service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -259,15 +253,18 @@ var Post_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Update",
 			Handler:    _Post_Update_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "UploadFile",
-			Handler:    _Post_UploadFile_Handler,
+			StreamName:    "UploadFile",
+			Handler:       _Post_UploadFile_Handler,
+			ClientStreams: true,
 		},
 		{
-			MethodName: "DownloadFile",
-			Handler:    _Post_DownloadFile_Handler,
+			StreamName:    "DownloadFile",
+			Handler:       _Post_DownloadFile_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "post.proto",
 }
