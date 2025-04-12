@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package posts;
+
+option go_package="ilianbuh.posts.v1;postsv1";
+
+service Post {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Delete(DeleteRequest) returns (DeleteResponse);
+    rpc Update(UpdateRequest) returns (UpdateResponse);
+    rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
+    rpc DownloadFile(DownloadFileRequest) returns (DownloadFileResponse);
+}
+
+message CreateRequest {
+    int64 userId = 2;
+    string header = 3;
+    string content = 4;
+    repeated string themes = 5;
+}
+message CreateResponse{}
+
+message DeleteRequest {
+    int64 postId = 1;
+    int64 userId = 2; 
+}
+message DeleteResponse{}
+
+message UpdateRequest {
+    int64 postId = 1;
+    int64 userId = 2;
+    string header = 3;
+    string content = 4;
+    repeated string themes = 5;
+} 
+message UpdateResponse{}
+
+message UploadFileRequest{
+    int64 postId = 1;
+    string fileName = 2;
+}
+message UploadFileResponse{}
+
+message DownloadFileRequest {
+    int64 postId = 1;
+    string fileName = 2;
+}
+message DownloadFileResponse{} 
