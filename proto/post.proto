@@ -18,13 +18,17 @@ message CreateRequest {
     string content = 4;
     repeated string themes = 5;
 }
-message CreateResponse{}
+message CreateResponse{
+    int64 postId = 1;
+}
 
 message DeleteRequest {
     int64 postId = 1;
     int64 userId = 2; 
 }
-message DeleteResponse{}
+message DeleteResponse{
+    int64 postId = 1;
+}
 
 message UpdateRequest {
     int64 postId = 1;
@@ -33,7 +37,9 @@ message UpdateRequest {
     string content = 4;
     repeated string themes = 5;
 } 
-message UpdateResponse{}
+message UpdateResponse{
+    int64 postId = 1;
+}
 
 message UploadFileRequest{
     int64 postId = 1;
@@ -45,7 +51,6 @@ message UploadFileResponse{}
 message DownloadFileRequest {
     int64 postId = 1;
     string fileName = 2;
-
 }
 message DownloadFileResponse{
     bytes chunks = 1;
