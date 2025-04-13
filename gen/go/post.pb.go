@@ -91,6 +91,7 @@ func (x *CreateRequest) GetThemes() []string {
 
 type CreateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        int64                  `protobuf:"varint,1,opt,name=postId,proto3" json:"postId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,6 +124,13 @@ func (x *CreateResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateResponse.ProtoReflect.Descriptor instead.
 func (*CreateResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CreateResponse) GetPostId() int64 {
+	if x != nil {
+		return x.PostId
+	}
+	return 0
 }
 
 type DeleteRequest struct {
@@ -179,6 +187,7 @@ func (x *DeleteRequest) GetUserId() int64 {
 
 type DeleteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        int64                  `protobuf:"varint,1,opt,name=postId,proto3" json:"postId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -211,6 +220,13 @@ func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteResponse) GetPostId() int64 {
+	if x != nil {
+		return x.PostId
+	}
+	return 0
 }
 
 type UpdateRequest struct {
@@ -291,6 +307,7 @@ func (x *UpdateRequest) GetThemes() []string {
 
 type UpdateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	PostId        int64                  `protobuf:"varint,1,opt,name=postId,proto3" json:"postId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -323,6 +340,13 @@ func (x *UpdateResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateResponse.ProtoReflect.Descriptor instead.
 func (*UpdateResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateResponse) GetPostId() int64 {
+	if x != nil {
+		return x.PostId
+	}
+	return 0
 }
 
 type UploadFileRequest struct {
@@ -527,19 +551,22 @@ const file_post_proto_rawDesc = "" +
 	"\x06userId\x18\x02 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06header\x18\x03 \x01(\tR\x06header\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12\x16\n" +
-	"\x06themes\x18\x05 \x03(\tR\x06themes\"\x10\n" +
-	"\x0eCreateResponse\"?\n" +
+	"\x06themes\x18\x05 \x03(\tR\x06themes\"(\n" +
+	"\x0eCreateResponse\x12\x16\n" +
+	"\x06postId\x18\x01 \x01(\x03R\x06postId\"?\n" +
 	"\rDeleteRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\x03R\x06postId\x12\x16\n" +
-	"\x06userId\x18\x02 \x01(\x03R\x06userId\"\x10\n" +
-	"\x0eDeleteResponse\"\x89\x01\n" +
+	"\x06userId\x18\x02 \x01(\x03R\x06userId\"(\n" +
+	"\x0eDeleteResponse\x12\x16\n" +
+	"\x06postId\x18\x01 \x01(\x03R\x06postId\"\x89\x01\n" +
 	"\rUpdateRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\x03R\x06postId\x12\x16\n" +
 	"\x06userId\x18\x02 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06header\x18\x03 \x01(\tR\x06header\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12\x16\n" +
-	"\x06themes\x18\x05 \x03(\tR\x06themes\"\x10\n" +
-	"\x0eUpdateResponse\"]\n" +
+	"\x06themes\x18\x05 \x03(\tR\x06themes\"(\n" +
+	"\x0eUpdateResponse\x12\x16\n" +
+	"\x06postId\x18\x01 \x01(\x03R\x06postId\"]\n" +
 	"\x11UploadFileRequest\x12\x16\n" +
 	"\x06postId\x18\x01 \x01(\x03R\x06postId\x12\x1a\n" +
 	"\bfileName\x18\x02 \x01(\tR\bfileName\x12\x14\n" +
